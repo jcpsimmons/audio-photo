@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "pitch-detect": "^0.0.2",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "tone": "^14.7.11"
   },
   "scripts": {
     "start": "react-scripts start",
