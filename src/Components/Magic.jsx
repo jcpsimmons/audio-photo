@@ -5,6 +5,10 @@ import * as Tone from "tone";
 const synth = new Tone.Synth().toMaster();
 
 export default function Magic() {
+  const playNote = (value, wait) => {
+    // take a pixel val (0-255), and wait time - multiply accordingly
+  };
+
   const loadImageToCanvas = () => {
     let canvas = document.getElementById("viewport");
 
@@ -20,6 +24,8 @@ export default function Magic() {
 
       const imageData = ctx.getImageData(0, 0, img.width, img.height);
 
+      let totalPixelsCounted = 0;
+
       for (let j = 0; j < img.height; j++) {
         for (let i = 0; i < img.width; i++) {
           let index = i * 4 * imageData.width + j * 4;
@@ -33,7 +39,8 @@ export default function Magic() {
           imageData.data[index + 2] = average;
           imageData.data[index + 3] = alpha;
 
-          console.log("average :>> ", average);
+          // keep track of total counted
+          totalPixelsCounted++;
         }
       }
     };
