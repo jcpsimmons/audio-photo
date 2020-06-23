@@ -24,7 +24,7 @@ export default function Magic() {
       canvas.style.height = `${img.height}px`;
 
       // get the pixel data
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+      let imageData = ctx.getImageData(0, 0, img.width, img.height);
 
       let totalPixelsCounted = 0;
 
@@ -48,15 +48,16 @@ export default function Magic() {
       }
       ctx.putImageData(imageData, 0, 0);
 
-      console.log("totalPixelsCounted :>> ", totalPixelsCounted);
-
       greyPixelData.map((pixel, index) => {
         // scale number
         let note = scale(pixel, 0, 255, 300, 2000);
 
-        let percent = setTimeout(() => {
-          // synth.triggerAttackRelease(note, ".1");
-        }, index * 110);
+        setTimeout(() => {
+          imageData.data[index * 4] = 255;
+          imageData.data[index * 4 + 3] = 255;
+          ctx.putImageData(imageData, 0, 0);
+          synth.triggerAttackRelease(note, ".05");
+        }, index * 55);
       });
     };
   };
