@@ -5,8 +5,8 @@ import * as Tone from "tone";
 const synth = new Tone.Synth().toMaster();
 
 export default function Magic() {
-  const playNote = (value, wait) => {
-    // take a pixel val (0-255), and wait time - multiply accordingly
+  const scale = (num, in_min, in_max, out_min, out_max) => {
+    return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
   };
 
   const loadImageToCanvas = () => {
@@ -18,46 +18,71 @@ export default function Magic() {
     img.src = "img/profilepic.png";
 
     img.onload = () => {
+      //  once image loads - draw it to canvas
       ctx.drawImage(img, 0, 0);
       canvas.style.width = `${img.width}px`;
       canvas.style.height = `${img.height}px`;
 
+      // get the pixel data
       const imageData = ctx.getImageData(0, 0, img.width, img.height);
 
       let totalPixelsCounted = 0;
 
-      for (let j = 0; j < img.height; j++) {
-        for (let i = 0; i < img.width; i++) {
-          let index = i * 4 * imageData.width + j * 4;
-          let red = imageData.data[index];
-          let green = imageData.data[index + 1];
-          let blue = imageData.data[index + 2];
-          let alpha = imageData.data[index + 3];
-          let average = (red + green + blue) / 3;
-          imageData.data[index] = average;
-          imageData.data[index + 1] = average;
-          imageData.data[index + 2] = average;
-          imageData.data[index + 3] = alpha;
+      let greyPixelData = [];
 
-          // keep track of total counted
-          totalPixelsCounted++;
-        }
+      // convert to greyscale
+      var i;
+      for (i = 0; i < imageData.data.length; i += 4) {
+        let avg =
+          (imageData.data[i] +
+            imageData.data[i + 1] +
+            imageData.data[i + 2] +
+            imageData.data[i + 3]) /
+          4;
+        imageData.data[i] = avg;
+        imageData.data[i + 1] = avg;
+        imageData.data[i + 2] = avg;
+        imageData.data[i + 3] = avg;
+
+        greyPixelData.push(avg);
       }
+      ctx.putImageData(imageData, 0, 0);
+
+      console.log("totalPixelsCounted :>> ", totalPixelsCounted);
+
+      greyPixelData.map((pixel, index) => {
+        // scale number
+        let note = scale(pixel, 0, 255, 300, 2000);
+
+        let percent = setTimeout(() => {
+          // synth.triggerAttackRelease(note, ".1");
+        }, index * 110);
+      });
     };
   };
 
-  useEffect(() => {
-    synth.triggerAttackRelease("C4", "4n");
+  const handleClick = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const modX = e.pageX - rect.left;
+    const modY = e.pageY - rect.top;
 
+    if (modX > 0 && modY > 0 && e.pageY < rect.bottom && e.pageX < rect.right) {
+      console.log("modX, modY", modX, modY);
+
+      let canvas = document.getElementById("viewport");
+      let ctx = canvas.getContext("2d");
+      console.log(ctx.getImageData(modX, modY, modX + 1, modY + 1));
+    }
+  };
+
+  useEffect(() => {
     loadImageToCanvas();
   }, []);
 
   return (
     <div>
       <h1>asdfasdf</h1>
-      <div id="myCanvas">
-        <canvas id="viewport"></canvas>
-      </div>
+      <canvas onClick={handleClick} id="viewport"></canvas>
       <p>asdfa</p>
     </div>
   );
